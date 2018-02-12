@@ -36,13 +36,14 @@ def countLeadingZeroes(s):
 
 def base58CheckEncode(prefix, payload):
 
+    # Add version byte in front of RIPEMD-160 hash (0x00 for Main Network)
     s = prefix + payload
 
+    # Add the 4 checksum bytes at the end of extended RIPEMD-160 hash. This is the 25-byte binary Bitcoin Address.
     checksum = hashlib.sha256(hashlib.sha256(s).digest()).digest()[0:4]
 
     result = s + checksum
 
-    # return '1' * countLeadingZeroes(result) + base58encode(base256decode(hexlify(result)))
     return '1' * countLeadingZeroes(result) + base58.b58encode(result)
 
 curve = ecdsa.curves.SECP256k1
@@ -62,7 +63,7 @@ def privateKeyToWif(key_hex):
 
 def privateKeyToPublicKey(s):
     sk = ecdsa.SigningKey.from_string(bytes.fromhex(s), curve=ecdsa.SECP256k1)
-    vk = sk.verifying_key
+
     return hexlify(b'\04' + sk.verifying_key.to_string())
 
 
@@ -73,32 +74,33 @@ def pubKeyToAddr(s):
     ripemd160 = hashlib.new('ripemd160')
 
     hash_sha256 = hashlib.new('SHA256')
-    hash_sha256.update(s.encode('utf-8'))
-    print(hash_sha256.hexdigest())
+    # bytearray.fromhex(s)
 
-   # print( ripemd160.hexdigest())
+    # Perform SHA-256 hashing on the public key
+    hash_sha256.update(bytes.fromhex(s))
 
-
-
+    # Perform RIPEMD-160 hashing on the result of SHA-256
     ripemd160.update(hash_sha256.digest())
 
-    return base58.b58encode(bytes.fromhex(ripemd160.hexdigest()))
+    print(ripemd160.hexdigest())
 
+    # return base58.b58encode(bytes.fromhex(ripemd160.hexdigest()))
 
-   # return base58CheckEncode(b'0', ripemd160.digest())
+    return base58CheckEncode(b'\0', ripemd160.digest())
 
 # print "Private key in WIF format:",
 
-#print(privateKeyToWif('0a56184c7a383d8bcce0c78e6e7a4b4b161b2f80a126caa48bde823a4625521f'))
-print(privateKeyToPublicKey('45b0c38fa54766354cf3409d38b873255dfa9ed3407a542ba48eb9cab9dfca67'))
+# print(privateKeyToWif('0a56184c7a383d8bcce0c78e6e7a4b4b161b2f80a126caa48bde823a4625521f'))
+pk = '18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725'
+pb_key = privateKeyToPublicKey(pk).decode("utf-8")
 
-#print( 'address')
+address = pubKeyToAddr(pb_key)
 
-print(pubKeyToAddr('04162ebcd38c90b56fbdb4b0390695afb471c944a6003cb334bbf030a89c42b584f089012beb4842483692bdff9fcab8676fed42c47bffb081001209079bbcb8db'))
+print(address)
 
 # (2**256 - 2**32 - 2 ** 9 - 2 ** 8 - 2** 7 - 2 ** 6 - 2 **4 - 1)
 p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 x = 55066263022277343669578718895168534326250603453777594175500187360389116729240
 y = 32670510020758816978083085130507043184471273380659243275938904335757337482424
-#print((x ** 3 + 7) % p == y**2 % p)
+# print((x ** 3 + 7) % p == y**2 % p)
 
