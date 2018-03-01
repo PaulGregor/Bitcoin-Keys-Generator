@@ -12,6 +12,7 @@ class NumberReceiver(object):
         pass
 
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+
 def base58encode(n):
     return base58encode(n//58) + b58[n%58:n%58+1] if n else ''
 
@@ -48,11 +49,19 @@ def base58CheckEncode(prefix, payload):
 
 curve = ecdsa.curves.SECP256k1
 
-from_secret_exponent = ecdsa.keys.SigningKey.generate
-private_key = from_secret_exponent(curve)
+# from_secret_exponent = ecdsa.keys.SigningKey.generate
+from_secret_exponent = ecdsa.keys.SigningKey.from_secret_exponent
+import os
+# print(bytes([3254654654654654654654654654645633333]) )
+# random_hex = hexlify(bytes(hex(3254654654654654654654654654645633333), 'utf-8'))
+random_int = int('11579208923731619542357098500868790785326998466564056403945758400790883467166', 24)
+
+print(hexlify(from_secret_exponent(random_int, curve, hashlib.sha256).to_string()).decode("utf-8"))
+
+# private_key = from_secret_exponent(curve)
 
 # print( hexlify(private_key.to_string()).decode('ascii'))
-public_key = private_key.get_verifying_key()
+# public_key = private_key.get_verifying_key()
 
 # print( hexlify(public_key.to_string()).decode('ascii'))
 
@@ -92,7 +101,21 @@ def pubKeyToAddr(s):
 
 # print(privateKeyToWif('0a56184c7a383d8bcce0c78e6e7a4b4b161b2f80a126caa48bde823a4625521f'))
 pk = '18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725'
-pb_key = privateKeyToPublicKey(pk).decode("utf-8")
+
+
+# Randomly generated
+# print(hexlify(private_key.to_string()).decode('ascii'))
+# pb_key = privateKeyToPublicKey(hexlify(private_key.to_string()).decode('ascii')).decode("utf-8")
+pb_key = privateKeyToPublicKey('18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725').decode("utf-8")
+# pb_key = privateKeyToPublicKey(hexlify(from_secret_exponent(random_int, curve, hashlib.sha256).to_string()).decode("utf-8")).decode("utf-8")
+
+
+print(privateKeyToWif('0a56184c7a383d8bcce0c78e6e7a4b4b161b2f80a126caa48bde823a4625521f'))
+print(hexlify(base58.b58decode('5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf'))[2:])
+
+checksum = hashlib.sha256(hashlib.sha256(b'1').digest()).digest()[0:4]
+print(hexlify(checksum))
+
 
 address = pubKeyToAddr(pb_key)
 
