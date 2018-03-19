@@ -54,9 +54,16 @@ from_secret_exponent = ecdsa.keys.SigningKey.from_secret_exponent
 import os
 # print(bytes([3254654654654654654654654654645633333]) )
 # random_hex = hexlify(bytes(hex(3254654654654654654654654654645633333), 'utf-8'))
-random_int = int('11579208923731619542357098500868790785326998466564056403945758400790883467166', 24)
+# range 1 - 115792089237316195423570985008687907852837564279074904382605163141518161494337
 
-print(hexlify(from_secret_exponent(random_int, curve, hashlib.sha256).to_string()).decode("utf-8"))
+
+# random_int = int('115792089237316195423570985008687907852837564279074904382605163141518161494336', 16)
+# print(random_int)
+
+print('private key from number:')
+print(hexlify(from_secret_exponent(75676363687837458973957322252586746876286263428585758848466363636, curve, hashlib.sha256).to_string()).decode("utf-8"))
+print(int('75676363687837458973957322252586746876286263428585758848466363636', 0))
+pr_key = hexlify(from_secret_exponent(75676363687837458973957322252586746876286263428585758848466363636, curve, hashlib.sha256).to_string()).decode("utf-8")
 
 # private_key = from_secret_exponent(curve)
 
@@ -64,6 +71,8 @@ print(hexlify(from_secret_exponent(random_int, curve, hashlib.sha256).to_string(
 # public_key = private_key.get_verifying_key()
 
 # print( hexlify(public_key.to_string()).decode('ascii'))
+
+
 
 
 def privateKeyToWif(key_hex):
@@ -91,8 +100,6 @@ def pubKeyToAddr(s):
     # Perform RIPEMD-160 hashing on the result of SHA-256
     ripemd160.update(hash_sha256.digest())
 
-    print(ripemd160.hexdigest())
-
     # return base58.b58encode(bytes.fromhex(ripemd160.hexdigest()))
 
     return base58CheckEncode(b'\0', ripemd160.digest())
@@ -106,24 +113,35 @@ pk = '18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725'
 # Randomly generated
 # print(hexlify(private_key.to_string()).decode('ascii'))
 # pb_key = privateKeyToPublicKey(hexlify(private_key.to_string()).decode('ascii')).decode("utf-8")
-pb_key = privateKeyToPublicKey('18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725').decode("utf-8")
+
 # pb_key = privateKeyToPublicKey(hexlify(from_secret_exponent(random_int, curve, hashlib.sha256).to_string()).decode("utf-8")).decode("utf-8")
 
 
-print(privateKeyToWif('0a56184c7a383d8bcce0c78e6e7a4b4b161b2f80a126caa48bde823a4625521f'))
-print(hexlify(base58.b58decode('5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf'))[2:])
+print("\nprivateKeyToWif: ")
+print(privateKeyToWif(pr_key))
 
-checksum = hashlib.sha256(hashlib.sha256(b'1').digest()).digest()[0:4]
+pb_key = privateKeyToPublicKey(pr_key).decode("utf-8")
+print("\nPublic Key: ")
+print(pb_key)
+
+address = pubKeyToAddr(pb_key)
+print("\naddress: ")
+print(address)
+
+
+# print(hexlify(base58.b58decode('5JY15QYfF3e4YEvtUTCxYtxxoMP5XGYxQsjg7Xq3CbqhP8sbiQj'))[2:])
+
+checksum = hashlib.sha256(hashlib.sha256(b'1').digest()).digest()[:4]
+print('\nchecksum: ')
 print(hexlify(checksum))
 
 
-address = pubKeyToAddr(pb_key)
 
-print(address)
 
 # (2**256 - 2**32 - 2 ** 9 - 2 ** 8 - 2** 7 - 2 ** 6 - 2 **4 - 1)
 p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 x = 55066263022277343669578718895168534326250603453777594175500187360389116729240
 y = 32670510020758816978083085130507043184471273380659243275938904335757337482424
-# print((x ** 3 + 7) % p == y**2 % p)
+print((x ** 3 + 7) % p == y**2 % p)
 
+print(base58.b58encode(b'115792089237316195423570985008687907853269984665640564039457584007908834671663'))
