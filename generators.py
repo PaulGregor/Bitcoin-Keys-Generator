@@ -1,3 +1,4 @@
+import argparse
 import hashlib
 
 from binascii import hexlify, unhexlify
@@ -53,10 +54,10 @@ def int_to_address(number):
 
     private_key = hexlify(PACKER.pack(number0, number1, number2, number3)).decode("utf-8")
 
-    print(int(private_key, 16))
+    print('Converting from: ' + str(int(private_key, 16)))
 
     uncompressed_key = base58_check_encode(b'\x80', unhexlify(private_key))
-    print(uncompressed_key + ' - private key')
+    print('Private key: ' + uncompressed_key)
 
     # address
     x, y = str(g * int(private_key, 16)).split()
@@ -71,8 +72,8 @@ def int_to_address(number):
         y = '0'*z + y
     uncompressed_public_key = '04' + x + y
 
-    print(uncompressed_public_key + ' - public key')
-    print(pub_key_to_addr(uncompressed_public_key) + ' - address')
+    print('Public key: ' + uncompressed_public_key)
+    print('Bitcoin address: ' + pub_key_to_addr(uncompressed_public_key))
 
 
 def wif_to_key(wif):
@@ -83,6 +84,18 @@ def wif_to_key(wif):
     return hexlify(b58decode(wif)[1:-slicer]).decode('utf-8')
 
 
-int_to_address(69302678922345667999943582182660846658111253030955767686930372293495671112904)
+def main():
+    parser = argparse.ArgumentParser(description='Generates private key, public key and wallet address from number')
+
+    parser.add_argument('number', type=int, nargs='?', default=1,
+                        help='A required integer number argument')
+    args = parser.parse_args()
+    int_to_address(args.number)
+
+# int_to_address(69302678922345667999943582182660846658111253030955767686930372293495671112904)
+
+
+if __name__ == "__main__":
+    main()
 
 #     print('1z4QU2cwJMorUq9ouUSbZNhHhQhCT4wRc')
