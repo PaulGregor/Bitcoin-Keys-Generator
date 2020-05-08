@@ -56,8 +56,8 @@ def int_to_address(number):
 
     print('Converting from: ' + str(int(private_key, 16)))
 
-    uncompressed_key = base58_check_encode(b'\x80', unhexlify(private_key))
-    print('Private key: ' + uncompressed_key)
+    compressed_key = base58_check_encode(b'\x80', unhexlify(private_key), True)
+    print('Private key: ' + compressed_key)
 
     # address
     x, y = str(g * int(private_key, 16)).split()
@@ -70,10 +70,15 @@ def int_to_address(number):
     if len2 != 64:
         z = 64 - len2
         y = '0'*z + y
-    uncompressed_public_key = '04' + x + y
+    compressed_public_key_with_out_prefix = x + y
 
-    print('Public key: ' + uncompressed_public_key)
-    print('Bitcoin address: ' + pub_key_to_addr(uncompressed_public_key))
+    pk_prefix = '02'
+    if not int(compressed_public_key_with_out_prefix[64:], 16) % 2 == 0:
+        pk_prefix = '03'
+    compressed_public_key = pk_prefix + compressed_public_key_with_out_prefix[:64]
+
+    print('Public key: ' + compressed_public_key)
+    print('Bitcoin address: ' + pub_key_to_addr(compressed_public_key))
 
 
 def wif_to_key(wif):
@@ -92,7 +97,7 @@ def main():
     args = parser.parse_args()
     int_to_address(args.number)
 
-# int_to_address(69302678922345667999943582182660846658111253030955767686930372293495671112904)
+# int_to_address(12345678900987654321)
 
 
 if __name__ == "__main__":
